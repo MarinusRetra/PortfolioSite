@@ -1,27 +1,60 @@
-const sequelize = require('sequelize');
-const express = require('express');
-const app = express();
-const mysql = require('mysql2');
-const cors = require('cors');
-const path = require('path');
-const port = 3001
+const {Sequelize, DataTypes, Model} = require('sequelize'); 
+const cors = require('cors'); const path = require('path');
+const express = require('express'); 
+const mysql = require('mysql2'); 
+const app = express(); 
+const port = 3001;
 
+class Project extends Model {};
 
-app.use(express.static(path.join(__dirname, "public")))
-app.use(cors())
-app.use(express.json())
+//Middleware stuff
+app.use(express.static(path.join(__dirname, "public"))); // Als een request een bestand matched in de public folder serve dat bestand.
+app.use(cors());
+app.use(express.json());
 
-const db = mysql.createConnection({
+const db = new Sequelize("tutorialdb", "root", "Awesome", {
   host: "localhost",
-  user: "root",
-  password: "Awesome",
-  database: "PortfolioDB"
+  dialect: "mysql"
 });
 
-app.listen(port, ()=>{
-  console.log('Listening on port %s', port);
-})
+async function startServer() {
+  try {
+    await db.authenticate();
+    console.log("Database connected");
+    app.listen(port, ()=> { console.log('Listening on port %s', port); });
+  } 
+  catch (error) { 
+    console.error("Database unable to connect", error); 
+  }
+}
+
+startServer();
+
+Project.init(
+  {
+    Title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    Description: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    ImageUrl: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
+  },
+  {
+    // Model options object configuratie hier.
+    sequelize: db, // db is de sequelize instance.
+    modelName: 'Project'
+  }
+);
+
+db.sync();
+
 
 app.get("", (req, res) => {
-  res = "swag";
+  res.send("swag");
 });
