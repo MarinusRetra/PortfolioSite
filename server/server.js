@@ -4,6 +4,8 @@ const express = require('express');
 const mysql = require('mysql2'); 
 const app = express(); 
 const port = 3001;
+require('dotenv').config({ path: path.resolve(__dirname, '../swag.env') });
+
 
 class Project extends Model {};
 
@@ -12,8 +14,8 @@ app.use(express.static(path.join(__dirname, "public"))); // Als een request een 
 app.use(cors());
 app.use(express.json());
 
-const db = new Sequelize("tutorialdb", "root", "Awesome", {
-  host: "localhost",
+const db = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSS, {
+  host: process.env.DB_HOST,
   dialect: "mysql"
 });
 
@@ -56,5 +58,5 @@ db.sync();
 
 
 app.get("", (req, res) => {
-  res.send("swag");
+  res.send("swag"); // The coolest get reqeust around.
 });
